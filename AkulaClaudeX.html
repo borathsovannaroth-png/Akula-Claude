@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070A14">
+<title>AkulaClaudeX</title>
+<style>
+  :root{--cyan:#00E5FF;--violet:#6C5CFF;--text:#F2F5FF;--soft:#B7C0DD}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:linear-gradient(#070A14,#101733 55%,#0A0F1F) fixed;overflow-x:hidden}
+  body::before,body::after{content:"";position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+  body::before{width:300px;height:300px;left:-100px;top:-80px;background:radial-gradient(circle,rgba(108,92,255,.38),transparent 70%)}
+  body::after{width:340px;height:340px;right:-110px;bottom:-90px;background:radial-gradient(circle,rgba(0,229,255,.3),transparent 70%)}
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+  .glass{background:linear-gradient(rgba(255,255,255,.20),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.28);
+    border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+  header{display:flex;align-items:center;gap:10px}
+  header div{flex:1}
+  h1{margin:0;font-size:28px}
+  .sub{color:var(--cyan);font-size:12px}
+  .tag{color:var(--soft);font-size:13px;margin:0}
+  .btn{border:0;border-radius:14px;padding:9px 16px;font-weight:700;font-size:13px;color:#05070F;cursor:pointer;
+    background:linear-gradient(90deg,var(--violet),var(--cyan))}
+  .btn:active{transform:scale(.96)}
+  .row{display:flex;gap:10px}
+  .tile{flex:1;padding:12px}
+  .tile small{display:block;color:var(--soft);font-size:11px}
+  .tile b{font-size:15px}
+  h2{margin:6px 0 0;font-size:13px;color:var(--cyan)}
+  .card{display:flex;align-items:center;gap:10px;padding:14px}
+  .card div{flex:1}
+  .card b{display:block;font-size:15px}
+  .card span{color:var(--soft);font-size:12px}
+  .notice{padding:14px;font-size:12.5px;color:var(--soft);line-height:1.5}
+  .notice b{color:var(--text)}
+  #log{padding:14px;font-size:13px;white-space:pre-wrap;word-break:break-word}
+  footer{text-align:center;color:rgba(183,192,221,.7);font-size:11px;padding:8px}
+  /* credit overlay */
+  #credit{position:fixed;inset:0;z-index:10;background:rgba(0,0,0,.67);display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s}
+  #credit.show{opacity:1;pointer-events:auto}
+  .sheet{width:100%;max-width:560px;padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;
+    transform:translateY(40px);transition:transform .32s}
+  #credit.show .sheet{transform:none}
+  .board{padding:20px;display:flex;flex-direction:column;gap:10px;border-radius:28px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .board h3{margin:0;font-size:18px}
+  .board .hi{color:var(--cyan);font-weight:600;font-size:16px}
+  .board p{margin:0;font-size:14px}
+  .board p.s{color:var(--soft);font-size:13px}
+  .link{display:block;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.25);
+    color:var(--text);text-decoration:none;font-size:13px}
+  .x{height:38px;border-radius:19px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;cursor:pointer;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .x:active{transform:scale(.98)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>AkulaClaudeX</h1>
+      <div class="sub">Android Performance &amp; System Tweaking Utility</div>
+    </div>
+    <button class="btn" onclick="openCredit()">Credits</button>
+  </header>
+  <p class="tag">Performance tweaks powered by Shizuku, no root needed.</p>
+
+  <div class="glass notice">
+    <b>Web version.</b> A web page can't change your phone's settings, so nothing here pretends to. It shows real device info and gives you the exact commands to run with Shizuku/ADB. For one-tap tweaks, use the Android app.
+  </div>
+
+  <div class="row">
+    <div class="glass tile"><small>RAM (approx.)</small><b id="ram">--</b></div>
+    <div class="glass tile"><small>Storage used / quota</small><b id="sto">--</b></div>
+  </div>
+  <div class="row">
+    <div class="glass tile"><small>Battery</small><b id="bat">--</b></div>
+    <div class="glass tile"><small>CPU cores</small><b id="cpu">--</b></div>
+  </div>
+
+  <h2>Smooth UI</h2>
+  <div class="glass card"><div><b>Faster animations (0.5x)</b><span>Quicker window, transition and animator speed.</span></div>
+    <button class="btn" onclick="cmd('Faster animations',['settings put global window_animation_scale 0.5','settings put global transition_animation_scale 0.5','settings put global animator_duration_scale 0.5'])">Copy</button></div>
+  <div class="glass card"><div><b>Animations off</b><span>Fastest feel on weak phones.</span></div>
+    <button class="btn" onclick="cmd('Animations off',['settings put global window_animation_scale 0','settings put global transition_animation_scale 0','settings put global animator_duration_scale 0'])">Copy</button></div>
+  <div class="glass card"><div><b>Restore animations (1x)</b><span>Back to Android default.</span></div>
+    <button class="btn" onclick="cmd('Restore animations',['settings put global window_animation_scale 1','settings put global transition_animation_scale 1','settings put global animator_duration_scale 1'])">Copy</button></div>
+
+  <h2>Memory &amp; storage</h2>
+  <div class="glass card"><div><b>Free RAM</b><span>Stops cached background processes.</span></div>
+    <button class="btn" onclick="cmd('Free RAM',['am kill-all'])">Copy</button></div>
+  <div class="glass card"><div><b>Clear app caches</b><span>Trims cached files across apps.</span></div>
+    <button class="btn" onclick="cmd('Clear app caches',['pm trim-caches 999999999999'])">Copy</button></div>
+
+  <h2>App speed</h2>
+  <div class="glass card"><div><b>Optimize apps</b><span>speed-profile compile. Slow, run on charger.</span></div>
+    <button class="btn" onclick="cmd('Optimize apps',['cmd package compile -m speed-profile -a'])">Copy</button></div>
+
+  <h2>How to run</h2>
+  <div class="glass notice">Paste the copied commands in a Shizuku-enabled terminal app, or over <b>adb shell</b>. Then restart the apps to feel the change.</div>
+  <div class="glass" id="log">Tap Copy on any tweak.</div>
+
+  <footer>Made by Akula Team · keep the credit</footer>
+</div>
+
+<div id="credit" onclick="if(event.target===this)closeCredit()">
+  <div class="sheet">
+    <div class="glass board">
+      <h3>Please add credit to us bro, let's gooo! 🔥</h3>
+      <div class="hi">Hi Maaa Boyy 👋</div>
+      <p>We are Akula Team, from Borath Sovannroth and Claude, also known as ma big broo.</p>
+      <p class="s">Please keep the rights with us. No stealing or copying allowed.</p>
+      <div class="hi" style="font-size:13px">Media</div>
+      <a class="link" href="https://t.me/Rachana_lover21" target="_blank" rel="noopener">Telegram · t.me/Rachana_lover21</a>
+      <a class="link" href="https://www.tiktok.com/@only_florian_naz" target="_blank" rel="noopener">TikTok · @only_florian_naz</a>
+    </div>
+    <div class="glass x" onclick="closeCredit()" aria-label="Close">✕</div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function openCredit(){$('credit').classList.add('show')}
+function closeCredit(){$('credit').classList.remove('show')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCredit()});
+setTimeout(openCredit,250); // pops up every time the app opens
+
+async function cmd(title,list){
+  const text=list.join('\n');
+  try{await navigator.clipboard.writeText(text);$('log').textContent=title+' – copied:\n'+text}
+  catch(e){$('log').textContent=title+' – copy these:\n'+text}
+}
+
+// Real device info (what browsers allow)
+$('cpu').textContent=navigator.hardwareConcurrency||'n/a';
+$('ram').textContent=navigator.deviceMemory?('~'+navigator.deviceMemory+' GB'):'n/a';
+if(navigator.storage&&navigator.storage.estimate){
+  navigator.storage.estimate().then(s=>{
+    const mb=n=>Math.round(n/1048576);
+    $('sto').textContent=mb(s.usage)+' / '+mb(s.quota)+' MB';
+  });
+}else $('sto').textContent='n/a';
+if(navigator.getBattery){
+  navigator.getBattery().then(b=>{
+    const u=()=>$('bat').textContent=Math.round(b.level*100)+'%'+(b.charging?' ⚡':'');
+    u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u);
+  });
+}else $('bat').textContent='n/a';
+</script>
+</body>
+</html>
